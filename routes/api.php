@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,8 +15,10 @@ Route::post('/signup', 'JwtController@signUp');
 
 Route::post('/signin', 'JwtController@signIn');
 
-Route::get('/restricted', 'JwtController@restricted')->middleware('jwt.auth');
+Route::group(['middleware' => 'jwt.auth'], function () {
+    Route::get('/restricted', 'JwtController@restricted');
 
-Route::group(['domain' => 'api.jwt.dev', 'prefix' => 'v1'], function () {
-   Route::get('/restricted', 'JwtController@crossDomainRestricted');
+    Route::group(['prefix' => 'acl', 'namespace' => 'Acl'], function () {
+        Route::resource('roles', 'RoleController');
+    });
 });
