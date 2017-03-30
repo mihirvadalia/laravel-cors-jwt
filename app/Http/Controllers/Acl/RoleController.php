@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Acl;
 use App\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Helpers\Helper;
+use Renate\Timezones\Timezone;
 
 class RoleController extends Controller
 {
@@ -20,7 +22,7 @@ class RoleController extends Controller
 
         // execute the ping query
         $this->client->ping($ping);
-        return response()->json(["Solr OK", $this->user]);
+        return response()->json(["Solr OK", $this->user, Helper::getVersion(), Timezone::currentTimezone()]);
     }
 
     /**
