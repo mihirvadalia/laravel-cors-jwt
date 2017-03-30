@@ -5,6 +5,9 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class Handler extends ExceptionHandler
 {
@@ -44,10 +47,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($exception instanceof Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+        if ($exception instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
             return response()->json(['token_expired'], $exception->getStatusCode());
-        } else if ($exception instanceof Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+        } else if ($exception instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
             return response()->json(['token_invalid'], $exception->getStatusCode());
+        } else if ($exception instanceof \Solarium\Exception\HttpException) {
+            if($exception->getCode() == 0) {
+                return response()->json(['solr_setup_problem'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return response()->json(['solr_failed'], $exception->getCode());
+        } else {
+            Log::emergency($exception->getMessage());
+            return response()->json(['Bad request', $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         /*$response = parent::render($request, $e);
